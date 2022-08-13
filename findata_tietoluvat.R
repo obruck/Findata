@@ -11,7 +11,7 @@ library(reshape2)
 
 
 # Read data
-setwd("/Users/oscarbruck/Desktop")
+setwd("/Users/oscarbruck/OneDrive - University of Helsinki/Tutkimus/Projekteja/Findata/")
 ## Data has been manually calculated from https://findata.fi/luvat/myonnetyt-luvat/
 df <- readxl::read_xlsx("./findata_tietoluvat.xlsx")
 
@@ -20,14 +20,19 @@ df <- readxl::read_xlsx("./findata_tietoluvat.xlsx")
 ## Wide to long
 df1 <- melt(df, id.vars = c("Vuosi", "Kuukausia", "Tietoluvat"))
 df1 <- df1 %>% 
-  dplyr::mutate(value = value/Tietoluvat,
-                ## Percentage
-                value = ifelse(is.na(value), 0, value*100),
-                ## Vuosi
-                vuosi = as.factor(Vuosi),
+  dplyr::mutate(
+    ## Proportion per month
+                value_mo = ifelse(value == 0, 0, value/Kuukausia),
+                ## Proportion per Tietoluvat
+                value = ifelse(value == 0, 0, value*100/Tietoluvat),
                 ## Source
-                variable = factor(variable, levels=c("Julkinen/Laitos", "Osakeyhtiö", "Yksityishenkilö"))) %>%
+                variable = factor(variable, levels=c("Julkinen/Laitos", "Kaupallinen", "Yksityishenkilö"))) %>%
   dplyr::rename(Hakija = variable)
+
+
+#########################################################################################################################################################
+######################################### HAKIJA/TIETOLUVAT #############################################################################################
+#########################################################################################################################################################
 
 
 # Plot
@@ -51,10 +56,14 @@ dev.off()
 
 
 
+#########################################################################################################################################################
+############################################ HAKIJA %/VUOSI LINEAARINEN REGRESSIO  ######################################################################
+#########################################################################################################################################################
+
 
 # Fit a linear regression
 df1_oy <- df1 %>%
-  dplyr::filter(Hakija == "Osakeyhtiö")
+  dplyr::filter(Hakija == "Kaupallinen")
 df1_oy$pred1 <- predict(lm(value ~ Vuosi, data=df1_oy))
 df1_js <- df1 %>%
   dplyr::filter(Hakija == "Julkinen/Laitos")
@@ -62,7 +71,7 @@ df1_js$pred1 <- predict(lm(value ~ Vuosi, data=df1_js))
 
 
 # Plot
-## Osakeyhtiö
+## Kaupallinen
 p_oy <- ggplot(df1_oy, aes(x = Vuosi, y=value)) +
   geom_line() +
   geom_point() +
@@ -80,8 +89,8 @@ print(p_js)
 
 
 # Extrapolate
-## Osakeyhtiö
-pred_oy <- data.frame(Vuosi=2020:2030, Hakija="Osakeyhtiö")
+## Kaupallinen
+pred_oy <- data.frame(Vuosi=2020:2030, Hakija="Kaupallinen")
 pred_oy$value <- predict(lm(value ~ Vuosi, data=df1_oy), newdata=pred_oy)
 p_oy + geom_line(color="red", data=pred_oy)
 
@@ -98,7 +107,7 @@ pred <- rbind(pred_js, pred_oy)
 pred1 <- pred %>%
   dplyr::filter(Vuosi > 2022) %>%
   dplyr::mutate(Data="Prediktoitu") %>%
-  dplyr::full_join(df1 %>% dplyr::select(Vuosi, Hakija, value) %>% dplyr::filter(Hakija %in% c("Julkinen/Laitos", "Osakeyhtiö")) %>% dplyr::mutate(Data="Findata"))
+  dplyr::full_join(df1 %>% dplyr::select(Vuosi, Hakija, value) %>% dplyr::filter(Hakija %in% c("Julkinen/Laitos", "Kaupallinen")) %>% dplyr::mutate(Data="Findata"))
 
 
 # Plot
@@ -127,3 +136,26 @@ dev.off()
 
 
 
+#########################################################################################################################################################
+############################################ HAKIJA %/VUOSI BARPLOT #####################################################################################
+#########################################################################################################################################################
+
+
+
+# Plot
+png("./findata_tietoluvat3.png", width = 6, height = 5, res = 300, units = "in")
+ggplot() +
+  geom_bar(data = df1, aes(x = Vuosi, y = value_mo, fill = Hakija), stat = "identity", color="black", position=position_dodge()) +
+  # geom_bar(data = df1, aes(x = Vuosi, y = value_mo, fill = Hakija), stat="identity", color = "black") +
+  scale_fill_brewer(palette="Set1") +
+  labs(y="Tietolupien määrä/kk") +
+  theme_bw() +
+  theme(axis.text.x = element_text(size=12, colour = "black"),
+        axis.text.y = element_text(size=12, colour = "black"),
+        axis.title.y = element_text(size=14, face="bold", colour = "black"),
+        axis.title.x = element_text(size=14, face="bold", colour = "black"),
+        legend.title = element_text(size=14, face="bold", colour = "black"),
+        legend.text = element_text(size=12, colour = "black"),
+        legend.key = element_rect(color="black"),
+        legend.position = "bottom")
+dev.off()
