@@ -13,7 +13,7 @@ library(reshape2)
 # Read data
 setwd("/Users/oscarbruck/OneDrive - University of Helsinki/Tutkimus/Projekteja/Findata/")
 ## Data has been manually calculated from https://findata.fi/luvat/myonnetyt-luvat/
-df <- readxl::read_xlsx("./findata_tietoluvat.xlsx")
+df <- readxl::read_xlsx("./data/findata_tietoluvat.xlsx")
 
 
 # Modify data
@@ -36,7 +36,7 @@ df1 <- df1 %>%
 
 
 # Plot
-png("./findata_tietoluvat1.png", width = 6, height = 5, res = 300, units = "in")
+png("./results/findata_tietoluvat1.png", width = 6, height = 5, res = 300, units = "in")
 ggplot() +
   geom_bar(data = df1, aes(x = Vuosi, y = value, fill = Hakija), stat = "identity", color="black", position=position_dodge()) +
   # geom_bar(data = df1, aes(x = Vuosi, y = value, fill = Hakija), stat = "identity", color="black", position="fill") +
@@ -111,7 +111,7 @@ pred1 <- pred %>%
 
 
 # Plot
-png("./findata_tietoluvat2.png", width = 6, height = 5, res = 300, units = "in")
+png("./results/findata_tietoluvat2.png", width = 6, height = 5, res = 300, units = "in")
 ggplot(pred1, aes(x = Vuosi, y=value)) +
   geom_smooth(method = "lm", size = 1.5, aes(color=Hakija)) +
   geom_point(size = 5, aes(shape = Data)) +
@@ -143,7 +143,7 @@ dev.off()
 
 
 # Plot
-png("./findata_tietoluvat3.png", width = 6, height = 5, res = 300, units = "in")
+png("./results/findata_tietoluvat3.png", width = 6, height = 5, res = 300, units = "in")
 ggplot() +
   geom_bar(data = df1, aes(x = Vuosi, y = value_mo, fill = Hakija), stat = "identity", color="black", position=position_dodge()) +
   # geom_bar(data = df1, aes(x = Vuosi, y = value_mo, fill = Hakija), stat="identity", color = "black") +
