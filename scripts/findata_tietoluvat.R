@@ -115,7 +115,7 @@ png("./results/findata_tietoluvat2.png", width = 6, height = 5, res = 300, units
 ggplot(pred1, aes(x = Vuosi, y=value)) +
   geom_smooth(method = "lm", size = 1.5, aes(color=Hakija)) +
   geom_point(size = 5, aes(shape = Data)) +
-  labs(y="Osuus (%)") +
+  labs(y="Osuus tietoluvista (%)") +
   scale_x_continuous(limits = c(2020, 2030), breaks = c(2020:2030)) +
   scale_y_continuous(limits = c(0, 100)) +
   scale_color_brewer(palette="Set1") +
