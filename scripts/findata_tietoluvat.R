@@ -11,7 +11,7 @@ library(reshape2)
 
 
 # Read data
-setwd("/Users/oscarbruck/OneDrive - University of Helsinki/Tutkimus/Projekteja/Findata/")
+setwd("/path/to/dir/")
 ## Data has been manually calculated from https://findata.fi/luvat/myonnetyt-luvat/
 df <- readxl::read_xlsx("./data/findata_tietoluvat.xlsx")
 
